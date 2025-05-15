@@ -4,6 +4,8 @@
 
 The **Error Context Copier** is a powerful VS Code extension designed to help developers quickly analyze, report, and share diagnostic information (errors, warnings, etc.) from their projects. It scans your codebase, intelligently groups related diagnostics, and provides multiple ways to view and export this information, complete with surrounding code context.
 
+![Extension Sidebar View](images/Side%20Panel.png)
+*(Image: Error Copier sidebar displaying Side Panel)*
 ![Extension Sidebar View](images/Diagnostics.png)
 *(Image: Error Copier displaying project diagnostics)*
 ![Extension Sidebar View](images/Folder%20Selection.png)
