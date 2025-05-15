@@ -1,8 +1,8 @@
 {
-    "name": "error-context-copier",
-    "displayName": "Error Context Copier",
+    "name": "error-copier",
+    "displayName": "Error Copier",
     "description": "Scans for diagnostics, displays them in a sidebar with filtering, an interactive panel, or copies them with context to the clipboard.",
-    "version": "0.6.0",
+    "version": "1.2.0",
     "publisher": "vscode-user",
     "engines": {
         "vscode": "^1.80.0"
