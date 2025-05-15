@@ -1,7 +1,13 @@
 .vscode/**
 .DS_Store
 node_modules/**
-out/**
+# out/**
+!out/extension.js
+!out/diagnosticTreeDataProvider.js
+# If you want to include source maps (good for debugging published extensions, but makes package larger):
+# !out/**/*.js.map 
+# Or, to include everything in out (simplest, but might include temp files if your build process creates them):
+# !out/** 
 src/**
 *.vsix
 npm-debug.log*

@@ -1,17 +1,24 @@
 # Error Copier - VS Code Extension
 
-[![VS Code Version](https://img.shields.io/badge/vscode-^1.100-blue.svg)](https://code.visualstudio.com)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/AssabTigle.error-copier?style=for-the-badge&label=Marketplace)](https://marketplace.visualstudio.com/items?itemName=AssabTigle.error-copier)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/AssabTigle.error-copier?style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=AssabTigle.error-copier)
+[![VS Code Version](https://img.shields.io/badge/vscode-^1.80.0-blue.svg?style=for-the-badge)](https://code.visualstudio.com)
+[![GitHub Repository](https://img.shields.io/github/stars/AssabTigleG/error-copier?style=social)](https://github.com/AssabTigleG/error-copier)
 
-The **Error Context Copier** is a powerful VS Code extension designed to help developers quickly analyze, report, and share diagnostic information (errors, warnings, etc.) from their projects. It scans your codebase, intelligently groups related diagnostics, and provides multiple ways to view and export this information, complete with surrounding code context.
+The **Error Copier** is a powerful VS Code extension designed to help developers quickly analyze, report, and share diagnostic information (errors, warnings, etc.) from their projects. It scans your codebase, intelligently groups related diagnostics, and provides multiple ways to view and export this information, complete with surrounding code context.
+
+Stop wasting time manually copying error details and context. Streamline your debugging and collaboration workflow with Error Copier!
 
 ![Extension Sidebar View](images/Side%20Panel.png)
-*(Image: Error Copier sidebar displaying Side Panel)*
-![Extension Sidebar View](images/Diagnostics.png)
-*(Image: Error Copier displaying project diagnostics)*
-![Extension Sidebar View](images/Folder%20Selection.png)
-*(Image: Error Copier displaying Folder Selection for Error Analysis)*
-![Extension Sidebar View](images/Exporting.png)
-*(Image: Error Copier displaying many exporting options)*
+*(Image: Error Copier sidebar displaying the Diagnostics Panel)*
+
+## Why Error Copier?
+
+*   **Efficiency:** Quickly grab all necessary error information without manual selection.
+*   **Clarity:** Contextual code snippets and intelligent grouping make understanding issues easier.
+*   **Collaboration:** Share comprehensive error reports effortlessly with your team or in bug reports.
+*   **Flexibility:** Multiple output formats and detailed configuration to fit your needs.
+*   **Integrated Experience:** A dedicated sidebar, interactive report panel, and convenient commands.
 
 ## Key Features
 
@@ -29,7 +36,7 @@ The **Error Context Copier** is a powerful VS Code extension designed to help de
         *   Error message(s) and code(s).
         *   Configurable number of lines of code before and after the diagnostic(s).
 *   **Interactive Diagnostics Sidebar:**
-    *   Dedicated sidebar view displaying a tree of all diagnostics in your workspace.
+    *   Dedicated sidebar view (`Error Context` icon in Activity Bar) displaying a tree of all diagnostics in your workspace.
     *   **Live Updates (on save):** Automatically refreshes when you save a file.
     *   **Visual Grouping:** Diagnostics in the tree are grouped by file and then by proximity.
     *   **Filtering:** Filter the diagnostics tree by file path or message content.
@@ -59,18 +66,29 @@ The **Error Context Copier** is a powerful VS Code extension designed to help de
     *   Progress notifications during scans.
     *   Clear informational messages.
 
+## Demo Images
+
+![Diagnostics Tree](images/Diagnostics.png)
+*(Image: Diagnostics displayed in the sidebar tree view)*
+
+![Folder Selection for Scan](images/Folder%20Selection.png)
+*(Image: Prompting for folder selection to scan)*
+
+![Export Format Options](images/Exporting.png)
+*(Image: Choosing an export format for the diagnostics report)*
+
 ## How to Use
 
 ### 1. Accessing the Diagnostics Sidebar
 
-*   Click the **Error Copier icon** (typically `$(checklist)`) in the Activity Bar (far left).
+*   Click the **Error Copier icon** (magnifying glass with an 'x') in the Activity Bar (far left).
 *   The "Diagnostics" tree view will show diagnostics for your current workspace.
-*   **Sidebar Actions:**
-    *   **Filter (🔍/❌):** Click to enter filter text for the tree. Click again (or clear input) to remove the filter.
-    *   **Refresh (🔄):** Manually refresh the diagnostics tree.
-    *   **Define Scan Scope & Show Panel (📁):** Prompts to select subfolders, then scans and shows results in the interactive panel.
-    *   **Scan Workspace & Show Panel (🖼️):** Scans the entire workspace and shows results in the interactive panel.
-    *   **Scan Workspace & Export As... (📤):** Scans the entire workspace and prompts for export format (to clipboard).
+*   **Sidebar Actions (Buttons at the top of the Diagnostics view):**
+    *   **Filter (Filter Icon / Clear All Icon):** Click to enter filter text for the tree. Click again (or clear input) to remove the filter.
+    *   **Refresh (Refresh Icon):** Manually refresh the diagnostics tree.
+    *   **Define Scan Scope & Show Panel (Folder Icon):** Prompts to select subfolders, then scans and shows results in the interactive panel.
+    *   **Scan Workspace & Show Panel (Window Icon):** Scans the entire workspace and shows results in the interactive panel.
+    *   **Scan Workspace & Export As... (Export Icon):** Scans the entire workspace and prompts for export format (to clipboard).
 *   **Tree Interactions:**
     *   **Click a diagnostic item:** Navigates to the code.
     *   **Right-click a file item:** Options to scan that file for panel or clipboard.
@@ -78,38 +96,43 @@ The **Error Context Copier** is a powerful VS Code extension designed to help de
 
 ### 2. Using Commands (Command Palette: `Ctrl+Shift+P` or `Cmd+Shift+P`)
 
-*   **`Error Context: Scan Subfolders & Show Interactive Report`**
+Search for "Error Context" or "Error Copier" to find these commands:
+
+*   **`Error Copier: Scan Subfolders & Show Interactive Report`**
     1.  Prompts you to select one or more subfolders from your current workspace.
     2.  Scans these folders for diagnostics.
     3.  Opens the results in the Interactive Webview Report Panel.
 
-*   **`Error Context: Scan Subfolders & Export Report As...`**
+*   **`Error Copier: Scan Subfolders & Export Report As...`**
     1.  Prompts for subfolder selection.
     2.  Scans these folders.
     3.  Prompts you to choose an output format (Markdown, JSON, HTML, CSV).
     4.  Copies the report in the chosen format to your clipboard.
 
-*   **`Error Context: Scan Subfolders & Copy Report (Markdown)`**
+*   **`Error Copier: Scan Subfolders & Copy Report (Markdown)`**
     *   Quickly scans selected subfolders and copies a Markdown report to the clipboard.
 
-*   **`Error Context: Scan Entire Workspace & Copy Report (Markdown)`**
+*   **`Error Copier: Scan Entire Workspace & Copy Report (Markdown)`**
     *   Scans all files in all open workspace folders and copies a Markdown report.
 
-*   **`Error Context: Scan Active File & Copy Report (Markdown)`**
+*   **`Error Copier: Scan Active File & Copy Report (Markdown)`**
     *   Scans only the currently active text editor and copies a Markdown report.
 
-*   **`Error Context: Scan Selected Item(s) & Copy Report (Markdown)`**
+*   **`Error Copier: Scan Selected Item(s) & Copy Report (Markdown)`**
     *   Available via right-click in the Explorer on files/folders.
     *   Scans the selected item(s) and copies a Markdown report.
 
 ## Installation
 
-### From Marketplace (Recommended - When Published)
+### From Visual Studio Code Marketplace
 
 1.  Open VS Code.
 2.  Go to the Extensions view (`Ctrl+Shift+X` or `Cmd+Shift+X`).
-3.  Search for "Error Copier".
-4.  Click "Install".
+3.  Search for "**Error Copier**" (Publisher: **AssabTigle**).
+4.  Click **Install**.
+5.  Reload VS Code if prompted.
+
+Alternatively, [install directly from the Marketplace website](https://marketplace.visualstudio.com/items?itemName=AssabTigle.error-copier).
 
 ### From Source (For Development/Testing)
 
@@ -133,7 +156,7 @@ The **Error Context Copier** is a powerful VS Code extension designed to help de
 
 ## Configuration
 
-You can configure the Error Copier extension via VS Code's settings (`File > Preferences > Settings`, then search for "Error Context Copier").
+You can configure the Error Copier extension via VS Code's settings (`File > Preferences > Settings` or `Ctrl+,`, then search for "Error Context Copier").
 
 *   **`errorcontextcopier.contextLinesBefore`** (default: `1`):
     *   Number of context lines to include before each diagnostic/group in reports.
@@ -153,28 +176,28 @@ The extension also respects your global `files.exclude` settings in VS Code to a
 
 ## Known Issues / Future Enhancements
 
-*   Currently, all exported reports (JSON, HTML, CSV) are copied to the clipboard. An option to "Save As File..." would be a good addition.
-*   More advanced filtering options for the sidebar tree (e.g., by error code).
-*   Performance improvements for very large workspaces for the live sidebar updates.
-*   *Your ideas here!*
+*   Option to "Save As File..." for exported reports (JSON, HTML, CSV) instead of only copying to clipboard.
+*   More advanced filtering options for the sidebar tree (e.g., by specific error code).
+*   Performance optimizations for the live sidebar updates on very large workspaces.
+*   Your suggestions are welcome! Please open an issue for feature requests.
 
 ## Contributing
 
-Contributions are welcome! If you have an idea for a new feature, a bug fix, or an improvement, please:
+Contributions are highly welcome! If you have an idea for a new feature, a bug fix, or an improvement, please follow these steps:
 
-1.  **Fork the repository.**
-2.  **Create a new branch** for your feature or fix (`git checkout -b feature/your-feature-name` or `git checkout -b fix/your-bug-fix`).
-3.  **Make your changes.**
+1.  **Fork the repository** on GitHub.
+2.  **Create a new branch** for your changes (`git checkout -b feature/your-awesome-feature` or `fix/address-that-bug`).
+3.  **Make your modifications.**
 4.  **Ensure code quality:**
     *   Run the linter: `npm run lint`
-    *   Ensure TypeScript compiles: `npm run compile`
-5.  **Test your changes thoroughly.**
-6.  **Commit your changes** with a clear and descriptive commit message.
-7.  **Push to your forked repository.**
-8.  **Open a Pull Request** against the `main` branch of this repository.
+    *   Ensure TypeScript compiles without errors: `npm run compile`
+5.  **Test your changes thoroughly** within the Extension Development Host.
+6.  **Commit your changes** with clear and descriptive commit messages.
+7.  **Push your branch** to your forked repository.
+8.  **Open a Pull Request** against the `main` branch of the `AssabTigleG/error-copier` repository.
 
-Please provide a clear description of your changes in the Pull Request.
+Please provide a clear description of the problem and solution in your Pull Request. If it's a new feature, explain why it's useful.
 
 ## License
 
-This extension is licensed under the [MIT License](LICENSE.md).
+This extension is licensed under the [MIT License](LICENSE).
