@@ -2,7 +2,7 @@
     "name": "error-copier",
     "displayName": "Error Copier",
     "description": "Scans for diagnostics, displays them in a sidebar with filtering, an interactive panel, or copies them with context to the clipboard.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "publisher": "AssabTigle",
     "engines": {
         "vscode": "^1.80.0"
@@ -41,7 +41,7 @@
                 {
                     "id": "error-context-copier-view-container",
                     "title": "Error Context",
-                    "icon": "$(checklist)"
+                    "icon": "images/activity-bar-icon.svg"
                 }
             ]
         },
