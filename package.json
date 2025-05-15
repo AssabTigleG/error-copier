@@ -2,8 +2,9 @@
     "name": "error-copier",
     "displayName": "Error Copier",
     "description": "Scans for diagnostics, displays them in a sidebar with filtering, an interactive panel, or copies them with context to the clipboard.",
-    "version": "1.2.2",
+    "version": "1.2.4",
     "publisher": "AssabTigle",
+    "icon": "images/errorLogo.png",
     "engines": {
         "vscode": "^1.80.0"
     },
