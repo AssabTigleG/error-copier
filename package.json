@@ -1,0 +1,259 @@
+{
+    "name": "error-context-copier",
+    "displayName": "Error Context Copier",
+    "description": "Scans for diagnostics, displays them in a sidebar with filtering, an interactive panel, or copies them with context to the clipboard.",
+    "version": "0.6.0",
+    "publisher": "vscode-user",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Linters",
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:errorContextCopierDiagnosticsView",
+        "onCommand:errorcontextcopier.scanSubfoldersAndCopy",
+        "onCommand:errorcontextcopier.scanWorkspaceAndCopy",
+        "onCommand:errorcontextcopier.scanActiveFileAndCopy",
+        "onCommand:errorcontextcopier.scanExplorerSelectionAndCopy",
+        "onCommand:errorcontextcopier.scanAndShowInPanel",
+        "onCommand:errorcontextcopier.scanAndExportReportAs",
+        "onCommand:errorcontextcopier.refreshDiagnosticsView",
+        "onCommand:errorcontextcopier.view.scanWorkspaceAndShowPanel",
+        "onCommand:errorcontextcopier.view.scanWorkspaceAndExportAs",
+        "onCommand:errorcontextcopier.view.defineScanScopeAndShowPanel",
+        "onCommand:errorcontextcopier.view.setTreeFilter",
+        "onCommand:errorcontextcopier.view.clearTreeFilter",
+        "onCommand:errorcontextcopier.tree.goToDiagnostic",
+        "onCommand:errorcontextcopier.tree.copyDiagnosticMessage",
+        "onCommand:errorcontextcopier.tree.scanFileForPanel",
+        "onCommand:errorcontextcopier.tree.scanFileForClipboard"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "error-context-copier-view-container",
+                    "title": "Error Context",
+                    "icon": "$(checklist)"
+                }
+            ]
+        },
+        "views": {
+            "error-context-copier-view-container": [
+                {
+                    "id": "errorContextCopierDiagnosticsView",
+                    "name": "Diagnostics",
+                    "icon": "$(list-tree)",
+                    "contextualTitle": "Error Context Diagnostics"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "errorcontextcopier.refreshDiagnosticsView",
+                "title": "Refresh Diagnostics",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "errorcontextcopier.view.defineScanScopeAndShowPanel",
+                "title": "Scan Defined Scope & Show Panel",
+                "icon": "$(folder-opened)"
+            },
+            {
+                "command": "errorcontextcopier.view.scanWorkspaceAndShowPanel",
+                "title": "Scan Workspace & Show Panel",
+                "icon": "$(window)"
+            },
+            {
+                "command": "errorcontextcopier.view.scanWorkspaceAndExportAs",
+                "title": "Scan Workspace & Export As...",
+                "icon": "$(export)"
+            },
+            {
+                "command": "errorcontextcopier.view.setTreeFilter",
+                "title": "Filter Diagnostics Tree...",
+                "icon": "$(filter)"
+            },
+            {
+                "command": "errorcontextcopier.view.clearTreeFilter",
+                "title": "Clear Diagnostics Tree Filter",
+                "icon": "$(clear-all)"
+            },
+            {
+                "command": "errorcontextcopier.scanSubfoldersAndCopy",
+                "title": "Error Context: Scan Selected Subfolders & Copy Report (Markdown)"
+            },
+            {
+                "command": "errorcontextcopier.scanWorkspaceAndCopy",
+                "title": "Error Context: Scan Entire Workspace & Copy Report (Markdown)"
+            },
+            {
+                "command": "errorcontextcopier.scanActiveFileAndCopy",
+                "title": "Error Context: Scan Active File & Copy Report (Markdown)"
+            },
+            {
+                "command": "errorcontextcopier.scanExplorerSelectionAndCopy",
+                "title": "Error Context: Scan Selected Item(s) & Copy Report (Markdown)"
+            },
+            {
+                "command": "errorcontextcopier.scanAndShowInPanel",
+                "title": "Error Context: Scan Subfolders & Show Interactive Report"
+            },
+            {
+                "command": "errorcontextcopier.scanAndExportReportAs",
+                "title": "Error Context: Scan Subfolders & Export Report As..."
+            },
+            {
+                "command": "errorcontextcopier.tree.goToDiagnostic",
+                "title": "Go to Diagnostic"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyDiagnosticMessage",
+                "title": "Copy Diagnostic Message"
+            },
+            {
+                "command": "errorcontextcopier.tree.scanFileForPanel",
+                "title": "Scan This File (Interactive Panel)"
+            },
+            {
+                "command": "errorcontextcopier.tree.scanFileForClipboard",
+                "title": "Scan This File (Copy Markdown)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "errorcontextcopier.view.setTreeFilter",
+                    "when": "view == errorContextCopierDiagnosticsView && !errorContextCopier.treeFilterActive",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "errorcontextcopier.view.clearTreeFilter",
+                    "when": "view == errorContextCopierDiagnosticsView && errorContextCopier.treeFilterActive",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "errorcontextcopier.refreshDiagnosticsView",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "errorcontextcopier.view.defineScanScopeAndShowPanel",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "errorcontextcopier.view.scanWorkspaceAndShowPanel",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@4"
+                },
+                {
+                    "command": "errorcontextcopier.view.scanWorkspaceAndExportAs",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@5"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "errorcontextcopier.tree.goToDiagnostic",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "inline"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyDiagnosticMessage",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "copy"
+                },
+                {
+                    "command": "errorcontextcopier.tree.scanFileForPanel",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "scan@1"
+                },
+                {
+                    "command": "errorcontextcopier.tree.scanFileForClipboard",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "scan@2"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "resourceScheme == 'file' || resourceScheme == 'vscode-remote'",
+                    "command": "errorcontextcopier.scanExplorerSelectionAndCopy",
+                    "group": "navigation@5"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "Error Context Copier",
+            "properties": {
+                "errorcontextcopier.contextLinesBefore": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 0,
+                    "description": "Number of context lines to include before each error/group in the report."
+                },
+                "errorcontextcopier.contextLinesAfter": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 0,
+                    "description": "Number of context lines to include after each error/group in the report."
+                },
+                "errorcontextcopier.includeSeverities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Error",
+                            "Warning",
+                            "Information",
+                            "Hint"
+                        ]
+                    },
+                    "default": [
+                        "Error"
+                    ],
+                    "description": "Diagnostic severities to include in the scan."
+                },
+                "errorcontextcopier.ignoredErrorCodes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Array of error codes (e.g., \"ts2304\", \"eslint(no-unused-vars)\") to ignore."
+                },
+                "errorcontextcopier.ignoredErrorMessages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Array of strings or /regex/ patterns for error messages to ignore."
+                },
+                "errorcontextcopier.groupingLineThreshold": {
+                    "type": "integer",
+                    "default": 2,
+                    "minimum": 0,
+                    "description": "Max lines between diagnostics to be in the same group."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "lint": "eslint src --ext ts"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "@types/node": "18.x",
+        "typescript": "^5.0.0",
+        "@typescript-eslint/eslint-plugin": "^5.59.8",
+        "@typescript-eslint/parser": "^5.59.8",
+        "eslint": "^8.41.0"
+    }
+}

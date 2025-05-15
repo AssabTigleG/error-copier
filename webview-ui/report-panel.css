@@ -1,0 +1,192 @@
+/**
+ * Styles for the Error Context Copier interactive report panel (webview).
+ * Adapts to VS Code's light and dark themes using CSS variables.
+ */
+body {
+    font-family: var(--vscode-font-family);
+    color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editor-background);
+    padding: 0 10px 10px 10px;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--vscode-sideBar-background, var(--vscode-editor-background));
+    border-bottom: 1px solid var(--vscode-panel-border, var(--vscode-editorWidget-border));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+.toolbar .summary-stats span {
+    margin-right: 15px;
+    font-size: var(--vscode-font-size);
+}
+
+.toolbar .actions input[type="text"] {
+    padding: 5px 8px;
+    border: 1px solid var(--vscode-input-border);
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+.toolbar .actions button {
+    padding: 5px 10px;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: 1px solid var(--vscode-button-border, transparent);
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.toolbar .actions button:hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+
+#report-container {
+    margin-top: 10px;
+}
+
+.report-group {
+    margin-bottom: 15px;
+    border: 1px solid var(--vscode-editorWidget-border, #ccc);
+    border-radius: 4px;
+    background-color: var(--vscode-sideBar-background, var(--vscode-editor-background));
+}
+
+.report-group-header {
+    padding: 8px 12px;
+    background-color: var(--vscode-peekViewTitle-background, #e0e0e0);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--vscode-editorWidget-border, #ccc);
+}
+
+.report-group-header:hover {
+    background-color: var(--vscode-list-hoverBackground, #d0d0d0);
+}
+
+.report-group-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    word-break: break-all;
+}
+
+.report-group-header h3 a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: none;
+}
+
+.report-group-header h3 a:hover {
+    text-decoration: underline;
+}
+
+.report-group-header .toggle-icon {
+    font-size: 1.2em;
+    transition: transform 0.2s ease-in-out;
+}
+
+.report-group.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.report-group-body {
+    padding: 10px;
+    border-top: 1px solid var(--vscode-editorWidget-border, #ccc);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.report-group.collapsed .report-group-body {
+    display: none;
+}
+
+.report-group-body h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.individual-diagnostics-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 10px;
+}
+
+.individual-diagnostics-list li {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+.individual-diagnostics-list li .severity-Error {
+    color: var(--vscode-editorError-foreground);
+    font-weight: bold;
+}
+
+.individual-diagnostics-list li .severity-Warning {
+    color: var(--vscode-editorWarning-foreground);
+    font-weight: bold;
+}
+
+.individual-diagnostics-list li .severity-Information {
+    color: var(--vscode-editorInfo-foreground);
+}
+
+.individual-diagnostics-list li .severity-Hint {
+    color: var(--vscode-editorHint-foreground);
+}
+
+.code-context pre {
+    background-color: var(--vscode-textBlockQuote-background, var(--vscode-editor-background));
+    border: 1px solid var(--vscode-textBlockQuote-border, var(--vscode-editorWidget-border));
+    padding: 8px;
+    border-radius: 3px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: var(--vscode-editor-font-size);
+    line-height: var(--vscode-editor-line-height);
+    overflow-x: auto;
+}
+
+.code-context .line-number {
+    display: inline-block;
+    width: 4em;
+    text-align: right;
+    margin-right: 10px;
+    color: var(--vscode-editorLineNumber-foreground);
+    user-select: none;
+}
+
+.code-context .line-content {
+    display: inline;
+}
+
+.code-context .error-line-indicator {
+    color: var(--vscode-editorLineNumber-activeForeground, var(--vscode-editorLineNumber-foreground));
+    font-weight: bold;
+}
+
+.placeholder {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: var(--vscode-descriptionForeground);
+}
+
+.highlight {
+    background-color: var(--vscode-editor-findMatchHighlightBackground);
+    color: var(--vscode-editor-foreground);
+}

@@ -1,0 +1,17 @@
+.vscode/**
+.DS_Store
+node_modules/**
+out/**
+src/**
+*.vsix
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Include these for source maps if desired during development, but typically not in .vsix
+# !out/**/*.js.map
