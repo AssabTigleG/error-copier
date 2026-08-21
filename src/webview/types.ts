@@ -1,0 +1,17 @@
+import { FormattedReportGroup } from '../types';
+
+/**
+ * Messages sent from Extension Host to Webview Panel.
+ */
+export type ExtensionToWebviewMessage =
+    | { command: 'loadData'; data: FormattedReportGroup[] }
+    | { command: 'setFilter'; filter: string };
+
+/**
+ * Messages sent from Webview Panel to Extension Host.
+ */
+export type WebviewToExtensionMessage =
+    | { command: 'webviewReady' }
+    | { command: 'navigateTo'; filePath: string; line: number }
+    | { command: 'copyMarkdownToClipboard'; data: FormattedReportGroup[] }
+    | { command: 'openFile'; filePath: string };

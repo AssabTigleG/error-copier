@@ -35,14 +35,17 @@ Stop wasting time manually copying error details and context. Streamline your de
         *   Line number(s).
         *   Error message(s) and code(s).
         *   Configurable number of lines of code before and after the diagnostic(s).
-*   **Interactive Diagnostics Sidebar:**
-    *   Dedicated sidebar view (`Error Context` icon in Activity Bar) displaying a tree of all diagnostics in your workspace.
-    *   **Live Updates (on save):** Automatically refreshes when you save a file.
-    *   **Visual Grouping:** Diagnostics in the tree are grouped by file and then by proximity.
-    *   **Filtering:** Filter the diagnostics tree by file path or message content.
-    *   **Quick Actions:** Refresh, scan workspace, define scan scope, and export directly from the sidebar title bar.
-    *   **Direct Navigation:** Click any diagnostic in the tree to jump to its location in your code.
-    *   **Context Menus:** Perform actions like copying messages or scanning specific files/diagnostics.
+*   **Live Status Bar Badge:**
+    *   Dynamic summary indicator on the status bar (e.g. `$(error) 2 $(warning) 5` or `$(check) 0 Errors`) showing active workspace health with one-click navigation.
+*   **Flexible Sidebar Grouping Modes:**
+    *   Switch between multiple TreeView hierarchies at any time:
+        *   **By File:** Hierarchical workspace folder & file view (with line proximity grouping).
+        *   **By Severity:** Group by `Errors`, `Warnings`, `Information`, and `Hints`.
+        *   **By Diagnostic Source / Rule:** Group by linter/compiler rules (e.g. `eslint: no-unused-vars`, `ts: 2304`).
+*   **High-Performance Asynchronous Chunking:**
+    *   Streams and batches file scanning cooperatively so the UI remains buttery smooth even on massive repositories (>10,000 files).
+*   **Comprehensive Automated Test Suite:**
+    *   Unit and integration test suites covering report formatting, grouping algorithms, and tree data management.
 *   **Interactive Webview Report Panel:**
     *   View detailed diagnostic reports in a rich, interactive VS Code panel.
     *   Syntax-highlighted code context.

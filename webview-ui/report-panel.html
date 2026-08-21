@@ -19,19 +19,22 @@
 <body>
     <div class="toolbar">
         <div class="summary-stats">
-            <span id="total-groups">Groups: 0</span>
-            <span id="total-diagnostics">Diagnostics: 0</span>
+            <span id="stat-errors" class="stat-chip stat-error" style="display:none;">0 Errors</span>
+            <span id="stat-warnings" class="stat-chip stat-warning" style="display:none;">0 Warnings</span>
+            <span id="stat-groups" class="stat-chip stat-total">0 Groups</span>
         </div>
         <div class="actions">
-            <input type="text" id="filter-input" placeholder="Filter by file path or message...">
-            <button id="copy-markdown-button">Copy Markdown</button>
-            <button id="expand-all-button">Expand All</button>
-            <button id="collapse-all-button">Collapse All</button>
+            <div class="search-box">
+                <input type="text" id="filter-input" placeholder="Search file, message, rule...">
+            </div>
+            <button id="copy-markdown-button" class="btn">Copy Report (MD)</button>
+            <button id="expand-all-button" class="btn btn-secondary">Expand All</button>
+            <button id="collapse-all-button" class="btn btn-secondary">Collapse All</button>
         </div>
     </div>
 
     <div id="report-container">
-        <p class="placeholder">Scanning for diagnostics or awaiting data...</p>
+        <p class="placeholder">Scanning diagnostics or awaiting report data...</p>
     </div>
 
     <script nonce="${nonce}" src="${scriptUri}"></script>

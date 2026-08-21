@@ -1,8 +1,8 @@
 {
     "name": "error-copier",
     "displayName": "Error Copier",
-    "description": "Scans for diagnostics, displays them in a sidebar with filtering, an interactive panel, or copies them with context to the clipboard.",
-    "version": "1.2.4",
+    "description": "Scans for diagnostics, displays them in a sidebar with grouping & filtering, an interactive panel, or copies them with context to the clipboard.",
+    "version": "1.5.0",
     "publisher": "AssabTigle",
     "icon": "images/errorLogo.png",
     "engines": {
@@ -30,6 +30,8 @@
         "onCommand:errorcontextcopier.view.defineScanScopeAndShowPanel",
         "onCommand:errorcontextcopier.view.setTreeFilter",
         "onCommand:errorcontextcopier.view.clearTreeFilter",
+        "onCommand:errorcontextcopier.view.switchGroupingMode",
+        "onCommand:errorcontextcopier.focusDiagnosticsView",
         "onCommand:errorcontextcopier.tree.goToDiagnostic",
         "onCommand:errorcontextcopier.tree.copyDiagnosticMessage",
         "onCommand:errorcontextcopier.tree.scanFileForPanel",
@@ -61,6 +63,37 @@
                 "command": "errorcontextcopier.refreshDiagnosticsView",
                 "title": "Refresh Diagnostics",
                 "icon": "$(refresh)"
+            },
+            {
+                "command": "errorcontextcopier.view.switchGroupingMode",
+                "title": "Switch Grouping Mode (File / Severity / Rule)",
+                "icon": "$(group-by-ref-type)"
+            },
+            {
+                "command": "errorcontextcopier.view.toggleSeverities",
+                "title": "Filter Displayed Severities (Errors / Warnings / Infos / Hints)",
+                "icon": "$(checklist)"
+            },
+            {
+                "command": "errorcontextcopier.view.toggleGeneratedFiles",
+                "title": "Toggle Hide/Show Generated Code (*.g.dart, *.min.js, etc.)",
+                "icon": "$(exclude)"
+            },
+            {
+                "command": "errorcontextcopier.view.groupByFile",
+                "title": "Error Copier: Group Diagnostics by File"
+            },
+            {
+                "command": "errorcontextcopier.view.groupBySeverity",
+                "title": "Error Copier: Group Diagnostics by Severity"
+            },
+            {
+                "command": "errorcontextcopier.view.groupBySourceRule",
+                "title": "Error Copier: Group Diagnostics by Diagnostic Source / Rule"
+            },
+            {
+                "command": "errorcontextcopier.focusDiagnosticsView",
+                "title": "Error Copier: Focus Diagnostics View"
             },
             {
                 "command": "errorcontextcopier.view.defineScanScopeAndShowPanel",
@@ -131,6 +164,21 @@
         "menus": {
             "view/title": [
                 {
+                    "command": "errorcontextcopier.view.switchGroupingMode",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "errorcontextcopier.view.toggleSeverities",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "errorcontextcopier.view.toggleGeneratedFiles",
+                    "when": "view == errorContextCopierDiagnosticsView",
+                    "group": "navigation@1"
+                },
+                {
                     "command": "errorcontextcopier.view.setTreeFilter",
                     "when": "view == errorContextCopierDiagnosticsView && !errorContextCopier.treeFilterActive",
                     "group": "navigation@1"
@@ -194,6 +242,37 @@
         "configuration": {
             "title": "Error Context Copier",
             "properties": {
+                "errorcontextcopier.defaultGroupingMode": {
+                    "type": "string",
+                    "enum": [
+                        "file",
+                        "severity",
+                        "sourceRule"
+                    ],
+                    "enumDescriptions": [
+                        "Group diagnostics by workspace folder and file hierarchy",
+                        "Group diagnostics by severity level (Errors, Warnings, Information, Hints)",
+                        "Group diagnostics by linter/compiler source and rule code (e.g., eslint: no-unused-vars, ts: 2304)"
+                    ],
+                    "default": "file",
+                    "description": "Default grouping mode for diagnostics displayed in the sidebar TreeView."
+                },
+                "errorcontextcopier.statusBar.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show live diagnostic summary badge in the status bar."
+                },
+                "errorcontextcopier.ignoreGeneratedFiles": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Hide generated code files (*.g.dart, *.freezed.dart, *.min.js, etc.) from the sidebar tree."
+                },
+                "errorcontextcopier.asyncChunkSize": {
+                    "type": "integer",
+                    "default": 50,
+                    "minimum": 1,
+                    "description": "Number of files to scan per asynchronous batch to avoid UI freezes on large codebases."
+                },
                 "errorcontextcopier.contextLinesBefore": {
                     "type": "integer",
                     "default": 1,
@@ -218,7 +297,8 @@
                         ]
                     },
                     "default": [
-                        "Error"
+                        "Error",
+                        "Warning"
                     ],
                     "description": "Diagnostic severities to include in the scan."
                 },
@@ -251,14 +331,22 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile",
+        "test": "node ./out/test/runTest.js",
+        "test:unit": "mocha --ui tdd out/test/unit/**/*.test.js",
+        "package": "vsce package",
         "lint": "eslint src --ext ts"
     },
     "devDependencies": {
-        "@types/vscode": "^1.80.0",
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.10",
         "@types/node": "18.x",
-        "typescript": "^5.0.0",
+        "@types/vscode": "^1.80.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
-        "eslint": "^8.41.0"
+        "@vscode/test-electron": "^2.4.1",
+        "eslint": "^8.41.0",
+        "mocha": "^10.8.2",
+        "typescript": "^5.0.0"
     }
 }
