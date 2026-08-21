@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 import { FormattedReportGroup } from '../types';
 import { generateMarkdownReport } from '../diagnosticScanner';
 import { ExtensionToWebviewMessage, WebviewToExtensionMessage } from './types';
@@ -57,6 +58,12 @@ export class ReportPanelManager {
                         break;
                     case 'autoFix':
                         await this.autoFixLocation(message.filePath, message.line);
+                        break;
+                    case 'fixAllInFile':
+                        await this.fixAllInFile(message.filePath);
+                        break;
+                    case 'fixAllInScope':
+                        await this.fixAllInScope(message.filePaths);
                         break;
                     case 'copyMarkdownToClipboard':
                         await this.copyMarkdown(message.data || this.currentData);
@@ -138,6 +145,126 @@ export class ReportPanelManager {
         } catch (e) {
             vscode.window.showErrorMessage(`Failed to apply auto fix: ${e}`);
         }
+    }
+
+    private async fixAllInFile(filePath: string): Promise<void> {
+        try {
+            const uri = vscode.Uri.file(filePath);
+            const doc = await vscode.workspace.openTextDocument(uri);
+            let appliedCount = 0;
+
+            // 1. Try SourceFixAll first
+            const wholeDocRange = new vscode.Range(0, 0, Math.max(0, doc.lineCount - 1), 100);
+            const sourceActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                'vscode.executeCodeActionProvider',
+                uri,
+                wholeDocRange,
+                vscode.CodeActionKind.SourceFixAll.value
+            );
+            if (sourceActions && sourceActions.length > 0) {
+                for (const act of sourceActions) {
+                    if (act.edit) {
+                        const success = await vscode.workspace.applyEdit(act.edit);
+                        if (success) appliedCount++;
+                    } else if (act.command) {
+                        await vscode.commands.executeCommand(act.command.command, ...(act.command.arguments || []));
+                        appliedCount++;
+                    }
+                }
+            }
+
+            // 2. Iterate through file diagnostics and apply preferred QuickFixes
+            const diags = vscode.languages.getDiagnostics(uri);
+            for (const diag of diags) {
+                const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                    'vscode.executeCodeActionProvider',
+                    uri,
+                    diag.range,
+                    vscode.CodeActionKind.QuickFix.value
+                );
+                if (actions && actions.length > 0) {
+                    const preferred = actions.find(a => a.isPreferred) || (actions.length === 1 ? actions[0] : undefined);
+                    if (preferred) {
+                        if (preferred.edit) {
+                            const success = await vscode.workspace.applyEdit(preferred.edit);
+                            if (success) appliedCount++;
+                        } else if (preferred.command) {
+                            await vscode.commands.executeCommand(preferred.command.command, ...(preferred.command.arguments || []));
+                            appliedCount++;
+                        }
+                    }
+                }
+            }
+
+            vscode.window.showInformationMessage(
+                appliedCount > 0 ? `Applied ${appliedCount} auto-fix(es) in ${path.basename(filePath)}.` : `No automatic fixes available for ${path.basename(filePath)}.`
+            );
+        } catch (e) {
+            vscode.window.showErrorMessage(`Failed to auto-fix file: ${e}`);
+        }
+    }
+
+    private async fixAllInScope(filePaths: string[]): Promise<void> {
+        if (!filePaths || filePaths.length === 0) {
+            vscode.window.showInformationMessage("No files in current scope.");
+            return;
+        }
+
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Applying Auto-Fixes across files...",
+            cancellable: true
+        }, async (progress, token) => {
+            let totalFixed = 0;
+            let current = 0;
+
+            for (const fp of filePaths) {
+                if (token.isCancellationRequested) break;
+                current++;
+                progress.report({
+                    message: `${path.basename(fp)} (${current}/${filePaths.length})`,
+                    increment: (1 / Math.max(1, filePaths.length)) * 100
+                });
+
+                try {
+                    const uri = vscode.Uri.file(fp);
+                    const doc = await vscode.workspace.openTextDocument(uri);
+
+                    const wholeDocRange = new vscode.Range(0, 0, Math.max(0, doc.lineCount - 1), 100);
+                    const sourceActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                        'vscode.executeCodeActionProvider',
+                        uri,
+                        wholeDocRange,
+                        vscode.CodeActionKind.SourceFixAll.value
+                    );
+                    if (sourceActions) {
+                        for (const act of sourceActions) {
+                            if (act.edit && await vscode.workspace.applyEdit(act.edit)) totalFixed++;
+                        }
+                    }
+
+                    const diags = vscode.languages.getDiagnostics(uri);
+                    for (const diag of diags) {
+                        const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                            'vscode.executeCodeActionProvider',
+                            uri,
+                            diag.range,
+                            vscode.CodeActionKind.QuickFix.value
+                        );
+                        if (actions && actions.length > 0) {
+                            const preferred = actions.find(a => a.isPreferred) || (actions.length === 1 ? actions[0] : undefined);
+                            if (preferred && preferred.edit) {
+                                if (await vscode.workspace.applyEdit(preferred.edit)) totalFixed++;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error(`Error fixing ${fp}:`, e);
+                }
+            }
+
+            vscode.window.showInformationMessage(`Batch fix completed! Applied ${totalFixed} fix(es) across ${current} file(s).`);
+        });
     }
 
     private async navigateToLocation(filePath: string, line: number): Promise<void> {

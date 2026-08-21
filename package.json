@@ -211,6 +211,11 @@
                 "icon": "$(sparkle)"
             },
             {
+                "command": "errorcontextcopier.tree.fixAllInFile",
+                "title": "Fix All in File (Quick Fix)",
+                "icon": "$(wand)"
+            },
+            {
                 "command": "errorcontextcopier.tree.scanFileForPanel",
                 "title": "Open in Report Panel",
                 "icon": "$(window)"
@@ -345,9 +350,14 @@
                     "group": "2_ai@1"
                 },
                 {
+                    "command": "errorcontextcopier.tree.fixAllInFile",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "1_fix@1"
+                },
+                {
                     "command": "errorcontextcopier.tree.copyFileErrors",
                     "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
-                    "group": "1_copy@1"
+                    "group": "2_copy@1"
                 },
                 {
                     "command": "errorcontextcopier.tree.copyFileWarnings",

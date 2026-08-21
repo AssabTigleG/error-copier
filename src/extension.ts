@@ -213,6 +213,51 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Tree item actions for Files
     context.subscriptions.push(
+        vscode.commands.registerCommand('errorcontextcopier.tree.fixAllInFile', async (item: FileNode) => {
+            if (item?.fileUri) {
+                try {
+                    const doc = await vscode.workspace.openTextDocument(item.fileUri);
+                    let appliedCount = 0;
+
+                    // 1. Try SourceFixAll
+                    const wholeDocRange = new vscode.Range(0, 0, Math.max(0, doc.lineCount - 1), 100);
+                    const sourceActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                        'vscode.executeCodeActionProvider',
+                        item.fileUri,
+                        wholeDocRange,
+                        vscode.CodeActionKind.SourceFixAll.value
+                    );
+                    if (sourceActions && sourceActions.length > 0) {
+                        for (const act of sourceActions) {
+                            if (act.edit && await vscode.workspace.applyEdit(act.edit)) appliedCount++;
+                        }
+                    }
+
+                    // 2. Iterate through file diagnostics and apply preferred QuickFixes
+                    const diags = vscode.languages.getDiagnostics(item.fileUri);
+                    for (const diag of diags) {
+                        const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+                            'vscode.executeCodeActionProvider',
+                            item.fileUri,
+                            diag.range,
+                            vscode.CodeActionKind.QuickFix.value
+                        );
+                        if (actions && actions.length > 0) {
+                            const preferred = actions.find(a => a.isPreferred) || (actions.length === 1 ? actions[0] : undefined);
+                            if (preferred && preferred.edit && await vscode.workspace.applyEdit(preferred.edit)) {
+                                appliedCount++;
+                            }
+                        }
+                    }
+
+                    vscode.window.showInformationMessage(
+                        appliedCount > 0 ? `Applied ${appliedCount} auto-fix(es) in ${item.label}.` : `No automatic fixes available for ${item.label}.`
+                    );
+                } catch (e) {
+                    vscode.window.showErrorMessage(`Failed to auto-fix ${item.label}: ${e}`);
+                }
+            }
+        }),
         vscode.commands.registerCommand('errorcontextcopier.tree.copyFileErrors', async (item: FileNode) => {
             if (item?.fileUri) {
                 const reportData = await collectAndProcessDiagnostics([item.fileUri], `Scanning Errors in ${item.label}...`, [vscode.DiagnosticSeverity.Error]);

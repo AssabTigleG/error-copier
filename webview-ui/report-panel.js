@@ -10,6 +10,7 @@
     const statWarnings = document.getElementById('stat-warnings');
     const statGroups = document.getElementById('stat-groups');
     const copyMarkdownButton = document.getElementById('copy-markdown-button');
+    const fixAllScopeButton = document.getElementById('fix-all-scope-button');
     const expandAllButton = document.getElementById('expand-all-button');
     const collapseAllButton = document.getElementById('collapse-all-button');
 
@@ -26,6 +27,16 @@
     });
 
     vscode.postMessage({ command: 'webviewReady' });
+
+    if (fixAllScopeButton) {
+        fixAllScopeButton.addEventListener('click', () => {
+            const uniquePaths = Array.from(new Set(currentReportData.map(g => g.fullPath)));
+            vscode.postMessage({
+                command: 'fixAllInScope',
+                filePaths: uniquePaths
+            });
+        });
+    }
 
     if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -168,6 +179,7 @@
                 <div class="title-area">
                     ${severityBadge}
                     <h3><a href="#" data-filepath="${group.fullPath}" data-line="${group.contextDisplayStartLineNumber}">${group.filePath}</a></h3>
+                    <button class="btn btn-secondary fix-file-btn" style="padding: 2px 8px; font-size: 0.8em; margin-left: 6px;" title="Apply all auto-fixes in this file">⚡ Fix File</button>
                 </div>
                 <div class="header-right">
                     <span class="diag-code">${group.individualMessages.length} issue(s)</span>
@@ -177,9 +189,20 @@
 
             header.addEventListener('click', (e) => {
                 // @ts-ignore
-                if (e.target.tagName === 'A' || e.target.closest('a')) return;
+                if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
                 groupElement.classList.toggle('collapsed');
             });
+
+            const fixFileBtn = header.querySelector('.fix-file-btn');
+            if (fixFileBtn) {
+                fixFileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    vscode.postMessage({
+                        command: 'fixAllInFile',
+                        filePath: group.fullPath
+                    });
+                });
+            }
 
             const filePathLink = header.querySelector('a');
             if (filePathLink) {
