@@ -212,7 +212,21 @@
                     <span class="diag-badge ${badgeClass}">L${diag.originalStartLine}</span>
                     <span class="diag-msg">${escapeHtml(diag.message)}</span>
                     ${srcCode ? `<span class="diag-code">[${srcCode}]</span>` : ''}
+                    <button class="btn btn-secondary auto-fix-btn" style="padding: 2px 8px; font-size: 0.8em; margin-left: 8px;">Auto Fix</button>
                 `;
+
+                const fixBtn = listItem.querySelector('.auto-fix-btn');
+                if (fixBtn) {
+                    fixBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        vscode.postMessage({
+                            command: 'autoFix',
+                            filePath: group.fullPath,
+                            line: diag.originalStartLine
+                        });
+                    });
+                }
+
                 messagesList.appendChild(listItem);
             });
             body.appendChild(messagesList);

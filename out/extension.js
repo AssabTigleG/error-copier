@@ -247,7 +247,56 @@ function activate(context) {
         }
     }));
     // Tree item actions for Individual Diagnostics
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.goToDiagnostic', async (rawInfo) => {
+    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.autoFixDiagnostic', async (target) => {
+        const rawInfo = (target instanceof diagnosticTreeDataProvider_1.DiagnosticNode) ? target.rawInfo : target;
+        if (!rawInfo?.fileUri || !rawInfo.range)
+            return;
+        try {
+            const doc = await vscode.workspace.openTextDocument(rawInfo.fileUri);
+            const editor = await vscode.window.showTextDocument(doc, {
+                selection: new vscode.Selection(rawInfo.range.start, rawInfo.range.end)
+            });
+            editor.revealRange(rawInfo.range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+            const actions = await vscode.commands.executeCommand('vscode.executeCodeActionProvider', rawInfo.fileUri, rawInfo.range, vscode.CodeActionKind.QuickFix.value);
+            if (!actions || actions.length === 0) {
+                vscode.window.showInformationMessage("No automatic Quick Fix available for this issue.");
+                return;
+            }
+            if (actions.length === 1) {
+                const action = actions[0];
+                if (action.edit) {
+                    await vscode.workspace.applyEdit(action.edit);
+                }
+                if (action.command) {
+                    await vscode.commands.executeCommand(action.command.command, ...(action.command.arguments || []));
+                }
+                vscode.window.showInformationMessage(`Applied fix: ${action.title}`);
+                return;
+            }
+            const pickItems = actions.map(act => ({
+                label: act.isPreferred ? `$(star-full) ${act.title}` : act.title,
+                description: act.kind?.value,
+                action: act
+            }));
+            const selected = await vscode.window.showQuickPick(pickItems, {
+                placeHolder: "Select a Quick Fix to apply"
+            });
+            if (selected) {
+                const action = selected.action;
+                if (action.edit) {
+                    await vscode.workspace.applyEdit(action.edit);
+                }
+                if (action.command) {
+                    await vscode.commands.executeCommand(action.command.command, ...(action.command.arguments || []));
+                }
+                vscode.window.showInformationMessage(`Applied fix: ${action.title}`);
+            }
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Failed to apply auto fix: ${e}`);
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.goToDiagnostic', async (target) => {
+        const rawInfo = (target instanceof diagnosticTreeDataProvider_1.DiagnosticNode) ? target.rawInfo : target;
         if (rawInfo?.fileUri) {
             try {
                 const doc = await vscode.workspace.openTextDocument(rawInfo.fileUri);

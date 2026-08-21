@@ -166,6 +166,11 @@
                 "title": "Error Copier: Export Report As..."
             },
             {
+                "command": "errorcontextcopier.tree.autoFixDiagnostic",
+                "title": "Auto Fix (Quick Fix...)",
+                "icon": "$(lightbulb-autofix)"
+            },
+            {
                 "command": "errorcontextcopier.tree.goToDiagnostic",
                 "title": "Jump to Code",
                 "icon": "$(go-to-file)"
@@ -243,14 +248,22 @@
             ],
             "explorer/context": [
                 {
+                    "command": "errorcontextcopier.copyErrorsOnly",
+                    "group": "navigation@1"
+                },
+                {
                     "submenu": "errorcontextcopier.submenu",
-                    "group": "7_modification@5"
+                    "group": "navigation@2"
                 }
             ],
             "editor/context": [
                 {
+                    "command": "errorcontextcopier.copyErrorsOnly",
+                    "group": "navigation@1"
+                },
+                {
                     "submenu": "errorcontextcopier.submenu",
-                    "group": "9_cutcopypaste@9"
+                    "group": "navigation@2"
                 }
             ],
             "view/title": [
@@ -302,14 +315,24 @@
             ],
             "view/item/context": [
                 {
+                    "command": "errorcontextcopier.tree.autoFixDiagnostic",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "inline@1"
+                },
+                {
                     "command": "errorcontextcopier.tree.goToDiagnostic",
                     "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
-                    "group": "inline"
+                    "group": "inline@2"
+                },
+                {
+                    "command": "errorcontextcopier.tree.autoFixDiagnostic",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "1_fix@1"
                 },
                 {
                     "command": "errorcontextcopier.tree.copyDiagnosticWithContext",
                     "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
-                    "group": "1_copy@1"
+                    "group": "2_copy@1"
                 },
                 {
                     "command": "errorcontextcopier.tree.copyDiagnosticMessage",

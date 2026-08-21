@@ -13,5 +13,6 @@ export type ExtensionToWebviewMessage =
 export type WebviewToExtensionMessage =
     | { command: 'webviewReady' }
     | { command: 'navigateTo'; filePath: string; line: number }
+    | { command: 'autoFix'; filePath: string; line: number }
     | { command: 'copyMarkdownToClipboard'; data: FormattedReportGroup[] }
     | { command: 'openFile'; filePath: string };
