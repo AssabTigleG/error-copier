@@ -121,47 +121,138 @@
                 "icon": "$(clear-all)"
             },
             {
-                "command": "errorcontextcopier.scanSubfoldersAndCopy",
-                "title": "Error Context: Scan Selected Subfolders & Copy Report (Markdown)"
-            },
-            {
                 "command": "errorcontextcopier.scanWorkspaceAndCopy",
-                "title": "Error Context: Scan Entire Workspace & Copy Report (Markdown)"
+                "title": "Error Copier: Copy Workspace Report"
             },
             {
                 "command": "errorcontextcopier.scanActiveFileAndCopy",
-                "title": "Error Context: Scan Active File & Copy Report (Markdown)"
+                "title": "Error Copier: Copy Active File Report"
             },
             {
-                "command": "errorcontextcopier.scanExplorerSelectionAndCopy",
-                "title": "Error Context: Scan Selected Item(s) & Copy Report (Markdown)"
+                "command": "errorcontextcopier.scanSubfoldersAndCopy",
+                "title": "Error Copier: Copy Selected Subfolders Report"
+            },
+            {
+                "command": "errorcontextcopier.copyErrorsOnly",
+                "title": "Copy Errors Only",
+                "icon": "$(error)"
+            },
+            {
+                "command": "errorcontextcopier.copyWarningsOnly",
+                "title": "Copy Warnings Only",
+                "icon": "$(warning)"
+            },
+            {
+                "command": "errorcontextcopier.copyAllDiagnostics",
+                "title": "Copy All Diagnostics",
+                "icon": "$(checklist)"
+            },
+            {
+                "command": "errorcontextcopier.copyAsAiPrompt",
+                "title": "Copy as AI Fix Prompt",
+                "icon": "$(sparkle)"
+            },
+            {
+                "command": "errorcontextcopier.openReportPanel",
+                "title": "Open in Report Panel",
+                "icon": "$(window)"
             },
             {
                 "command": "errorcontextcopier.scanAndShowInPanel",
-                "title": "Error Context: Scan Subfolders & Show Interactive Report"
+                "title": "Error Copier: Open Report Panel"
             },
             {
                 "command": "errorcontextcopier.scanAndExportReportAs",
-                "title": "Error Context: Scan Subfolders & Export Report As..."
+                "title": "Error Copier: Export Report As..."
             },
             {
                 "command": "errorcontextcopier.tree.goToDiagnostic",
-                "title": "Go to Diagnostic"
+                "title": "Jump to Code",
+                "icon": "$(go-to-file)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyDiagnosticWithContext",
+                "title": "Copy Snippet with Context",
+                "icon": "$(copy)"
             },
             {
                 "command": "errorcontextcopier.tree.copyDiagnosticMessage",
-                "title": "Copy Diagnostic Message"
+                "title": "Copy Message Only",
+                "icon": "$(quote)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyDiagnosticAsAiPrompt",
+                "title": "Copy as AI Fix Prompt",
+                "icon": "$(sparkle)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyFileErrors",
+                "title": "Copy Errors Only",
+                "icon": "$(error)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyFileWarnings",
+                "title": "Copy Warnings Only",
+                "icon": "$(warning)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyFileAll",
+                "title": "Copy All Diagnostics",
+                "icon": "$(checklist)"
+            },
+            {
+                "command": "errorcontextcopier.tree.copyFileAsAiPrompt",
+                "title": "Copy as AI Fix Prompt",
+                "icon": "$(sparkle)"
             },
             {
                 "command": "errorcontextcopier.tree.scanFileForPanel",
-                "title": "Scan This File (Interactive Panel)"
-            },
+                "title": "Open in Report Panel",
+                "icon": "$(window)"
+            }
+        ],
+        "submenus": [
             {
-                "command": "errorcontextcopier.tree.scanFileForClipboard",
-                "title": "Scan This File (Copy Markdown)"
+                "id": "errorcontextcopier.submenu",
+                "label": "Error Copier",
+                "icon": "$(copy)"
             }
         ],
         "menus": {
+            "errorcontextcopier.submenu": [
+                {
+                    "command": "errorcontextcopier.copyErrorsOnly",
+                    "group": "1_copy@1"
+                },
+                {
+                    "command": "errorcontextcopier.copyWarningsOnly",
+                    "group": "1_copy@2"
+                },
+                {
+                    "command": "errorcontextcopier.copyAllDiagnostics",
+                    "group": "1_copy@3"
+                },
+                {
+                    "command": "errorcontextcopier.copyAsAiPrompt",
+                    "group": "2_ai@1"
+                },
+                {
+                    "command": "errorcontextcopier.openReportPanel",
+                    "group": "3_open@1"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "submenu": "errorcontextcopier.submenu",
+                    "group": "7_modification@5"
+                }
+            ],
+            "editor/context": [
+                {
+                    "submenu": "errorcontextcopier.submenu",
+                    "group": "9_cutcopypaste@9"
+                }
+            ],
             "view/title": [
                 {
                     "command": "errorcontextcopier.view.switchGroupingMode",
@@ -216,26 +307,44 @@
                     "group": "inline"
                 },
                 {
+                    "command": "errorcontextcopier.tree.copyDiagnosticWithContext",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "1_copy@1"
+                },
+                {
                     "command": "errorcontextcopier.tree.copyDiagnosticMessage",
                     "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
-                    "group": "copy"
+                    "group": "1_copy@2"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyDiagnosticAsAiPrompt",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == diagnosticItem",
+                    "group": "2_ai@1"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyFileErrors",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "1_copy@1"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyFileWarnings",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "1_copy@2"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyFileAll",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "1_copy@3"
+                },
+                {
+                    "command": "errorcontextcopier.tree.copyFileAsAiPrompt",
+                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
+                    "group": "2_ai@1"
                 },
                 {
                     "command": "errorcontextcopier.tree.scanFileForPanel",
                     "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
-                    "group": "scan@1"
-                },
-                {
-                    "command": "errorcontextcopier.tree.scanFileForClipboard",
-                    "when": "view == errorContextCopierDiagnosticsView && viewItem == fileItem",
-                    "group": "scan@2"
-                }
-            ],
-            "explorer/context": [
-                {
-                    "when": "resourceScheme == 'file' || resourceScheme == 'vscode-remote'",
-                    "command": "errorcontextcopier.scanExplorerSelectionAndCopy",
-                    "group": "navigation@5"
+                    "group": "3_open@1"
                 }
             ]
         },

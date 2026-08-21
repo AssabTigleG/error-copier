@@ -5,6 +5,7 @@ import {
     generateJsonReport,
     generateHtmlFileReport,
     generateCsvReport,
+    generateAiPrompt,
     escapeHtml,
     escapeCsvField
 } from '../../diagnosticScanner';
@@ -67,6 +68,15 @@ suite('Formatters Test Suite', () => {
         const csv = generateCsvReport(mockReportData);
         assert.ok(csv.startsWith('"File Path","Severity","Line Number"'), 'CSV should start with header row');
         assert.ok(csv.includes('"src/app.ts","Error","10","Cannot find name \'foo\'.","2304","ts"'));
+    });
+
+    test('generateAiPrompt generates prompt with instructions, diagnostics and snippets', () => {
+        const prompt = generateAiPrompt(mockReportData);
+        assert.ok(prompt.includes('Please fix the following issue(s)'), 'Prompt should have header instruction');
+        assert.ok(prompt.includes('### File: `src/app.ts`'), 'Prompt should have file name');
+        assert.ok(prompt.includes("Cannot find name 'foo'."), 'Prompt should list the error');
+        assert.ok(prompt.includes('const b = foo();'), 'Prompt should include code snippet');
+        assert.ok(prompt.includes('Please provide the corrected code'), 'Prompt should have footer instruction');
     });
 
     test('escapeHtml handles special characters correctly', () => {

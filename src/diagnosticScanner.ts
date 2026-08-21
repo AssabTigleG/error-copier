@@ -163,11 +163,12 @@ export function processDiagnosticsForReportGrouping(
  */
 export async function collectAndProcessDiagnostics(
     targetUris: vscode.Uri[],
-    scanTitle: string
+    scanTitle: string,
+    severitiesOverride?: vscode.DiagnosticSeverity[]
 ): Promise<FormattedReportGroup[] | null> {
     const config = vscode.workspace.getConfiguration('errorcontextcopier');
     const configuredSeverityStrings = config.get<string[]>('includeSeverities', ['Error', 'Warning']);
-    const severities = configuredSeverityStrings.map(s => SEVERITY_MAP[s]).filter(s => s !== undefined);
+    const severities = severitiesOverride ?? configuredSeverityStrings.map(s => SEVERITY_MAP[s]).filter(s => s !== undefined);
     const ignoreCodes = config.get<(string | number)[]>('ignoredErrorCodes', []);
     const ignoreMsgs = config.get<string[]>('ignoredErrorMessages', []);
     const chunkSize = config.get<number>('asyncChunkSize', 50);
@@ -446,3 +447,39 @@ export function generateCsvReport(formattedReportGroups: FormattedReportGroup[])
     }
     return csv;
 }
+
+/**
+ * Generates an LLM-ready AI fix prompt from the grouped diagnostics.
+ */
+export function generateAiPrompt(formattedReportGroups: FormattedReportGroup[]): string {
+    let prompt = `Please fix the following issue(s) found in the codebase:\n\n`;
+    for (const group of formattedReportGroups) {
+        prompt += `### File: \`${group.filePath}\`\n\n`;
+        prompt += `**Diagnostics:**\n`;
+        for (const diag of group.individualMessages) {
+            const ruleTag = [diag.source, diag.code].filter(Boolean).join(': ');
+            prompt += `- [${diag.severity}] Line ${diag.originalStartLine}: ${diag.message}${ruleTag ? ` (${ruleTag})` : ''}\n`;
+        }
+        prompt += `\n**Code Snippet:**\n\`\`\`\n`;
+        if (group.linesBeforeGroupContent) {
+            for (let i = 0; i < group.linesBeforeGroupContent.length; i++) {
+                const lineNo = group.contextDisplayStartLineNumber - group.linesBeforeGroupContent.length + i;
+                prompt += `${String(lineNo).padStart(5)} | ${group.linesBeforeGroupContent[i]}\n`;
+            }
+        }
+        for (let i = 0; i < group.groupCodeLines.length; i++) {
+            const lineNo = group.contextDisplayStartLineNumber + i;
+            prompt += `${String(lineNo).padStart(5)} > ${group.groupCodeLines[i]}\n`;
+        }
+        if (group.linesAfterGroupContent) {
+            const firstLineNum = group.contextDisplayStartLineNumber + group.groupCodeLines.length;
+            for (let i = 0; i < group.linesAfterGroupContent.length; i++) {
+                prompt += `${String(firstLineNum + i).padStart(5)} | ${group.linesAfterGroupContent[i]}\n`;
+            }
+        }
+        prompt += `\`\`\`\n\n`;
+    }
+    prompt += `Please provide the corrected code and briefly explain the fix.`;
+    return prompt;
+}
+

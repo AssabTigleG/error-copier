@@ -137,42 +137,116 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.view.clearTreeFilter', () => {
         diagnosticTreeDataProvider.clearFilterText();
     }));
-    // Scan & Show Panel Commands
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.view.scanWorkspaceAndShowPanel', async () => {
-        const wsFolders = vscode.workspace.workspaceFolders;
-        if (!wsFolders || wsFolders.length === 0) {
-            vscode.window.showErrorMessage("No workspace open.");
+    // Context Submenu Commands (Explorer, Editor, Sidebar)
+    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.copyErrorsOnly', async (clickedUri, selectedUris) => {
+        const uris = getContextUris(clickedUri, selectedUris);
+        if (!uris || uris.length === 0)
             return;
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning Errors...", [vscode.DiagnosticSeverity.Error]);
+        if (reportData && reportData.length > 0) {
+            await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Errors", reportData.length);
         }
-        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(wsFolders.map(f => f.uri), "Scanning Workspace for Panel...");
+        else if (reportData) {
+            vscode.window.showInformationMessage("No errors found in target.");
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.copyWarningsOnly', async (clickedUri, selectedUris) => {
+        const uris = getContextUris(clickedUri, selectedUris);
+        if (!uris || uris.length === 0)
+            return;
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning Warnings...", [vscode.DiagnosticSeverity.Warning]);
+        if (reportData && reportData.length > 0) {
+            await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Warnings", reportData.length);
+        }
+        else if (reportData) {
+            vscode.window.showInformationMessage("No warnings found in target.");
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.copyAllDiagnostics', async (clickedUri, selectedUris) => {
+        const uris = getContextUris(clickedUri, selectedUris);
+        if (!uris || uris.length === 0)
+            return;
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning All Diagnostics...", [vscode.DiagnosticSeverity.Error, vscode.DiagnosticSeverity.Warning, vscode.DiagnosticSeverity.Information, vscode.DiagnosticSeverity.Hint]);
+        if (reportData && reportData.length > 0) {
+            await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Diagnostics", reportData.length);
+        }
+        else if (reportData) {
+            vscode.window.showInformationMessage("No diagnostics found in target.");
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.copyAsAiPrompt', async (clickedUri, selectedUris) => {
+        const uris = getContextUris(clickedUri, selectedUris);
+        if (!uris || uris.length === 0)
+            return;
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Preparing AI Fix Prompt...");
+        if (reportData && reportData.length > 0) {
+            await copyReportToClipboard((0, diagnosticScanner_1.generateAiPrompt)(reportData), "AI Prompt", reportData.length);
+        }
+        else if (reportData) {
+            vscode.window.showInformationMessage("No diagnostics found to prompt.");
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.openReportPanel', async (clickedUri, selectedUris) => {
+        const uris = getContextUris(clickedUri, selectedUris);
+        if (!uris || uris.length === 0)
+            return;
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning for Report Panel...");
         if (reportData && reportData.length > 0) {
             reportPanel_1.ReportPanelManager.createOrShow(context.extensionUri, reportData);
         }
         else if (reportData) {
-            vscode.window.showInformationMessage("No matching diagnostics in workspace.");
+            vscode.window.showInformationMessage("No diagnostics found for report.");
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.view.scanWorkspaceAndExportAs', async () => {
-        const wsFolders = vscode.workspace.workspaceFolders;
-        if (!wsFolders || wsFolders.length === 0) {
-            vscode.window.showErrorMessage("No workspace open.");
-            return;
+    // Tree item actions for Files
+    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.copyFileErrors', async (item) => {
+        if (item?.fileUri) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning Errors in ${item.label}...`, [vscode.DiagnosticSeverity.Error]);
+            if (reportData && reportData.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Errors", reportData.length);
+            }
+            else if (reportData) {
+                vscode.window.showInformationMessage(`No errors in ${item.label}.`);
+            }
         }
-        await triggerScanAndExport(wsFolders.map(f => f.uri), "Scanning Workspace for Export...");
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.view.defineScanScopeAndShowPanel', async () => {
-        const uris = await promptForSubfolderSelection();
-        if (uris && uris.length > 0) {
-            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning Scope for Panel...");
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyFileWarnings', async (item) => {
+        if (item?.fileUri) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning Warnings in ${item.label}...`, [vscode.DiagnosticSeverity.Warning]);
+            if (reportData && reportData.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Warnings", reportData.length);
+            }
+            else if (reportData) {
+                vscode.window.showInformationMessage(`No warnings in ${item.label}.`);
+            }
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyFileAll', async (item) => {
+        if (item?.fileUri) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning All Diagnostics in ${item.label}...`, [vscode.DiagnosticSeverity.Error, vscode.DiagnosticSeverity.Warning, vscode.DiagnosticSeverity.Information, vscode.DiagnosticSeverity.Hint]);
+            if (reportData && reportData.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Diagnostics", reportData.length);
+            }
+            else if (reportData) {
+                vscode.window.showInformationMessage(`No diagnostics in ${item.label}.`);
+            }
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyFileAsAiPrompt', async (item) => {
+        if (item?.fileUri) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Preparing AI Prompt for ${item.label}...`);
+            if (reportData && reportData.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateAiPrompt)(reportData), "AI Prompt", reportData.length);
+            }
+            else if (reportData) {
+                vscode.window.showInformationMessage(`No diagnostics in ${item.label}.`);
+            }
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.scanFileForPanel', async (item) => {
+        if (item?.fileUri) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning ${item.label} for Panel...`);
             if (reportData && reportData.length > 0) {
                 reportPanel_1.ReportPanelManager.createOrShow(context.extensionUri, reportData);
             }
             else if (reportData) {
-                vscode.window.showInformationMessage("No matching diagnostics in scope.");
+                vscode.window.showInformationMessage(`No matching diagnostics in ${item.label}.`);
             }
         }
     }));
-    // Tree item actions
+    // Tree item actions for Individual Diagnostics
     context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.goToDiagnostic', async (rawInfo) => {
         if (rawInfo?.fileUri) {
             try {
@@ -186,32 +260,41 @@ function activate(context) {
                 vscode.window.showErrorMessage(`Failed to open file: ${rawInfo.fileUri.fsPath}. ${e}`);
             }
         }
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.copyDiagnosticMessage', async (item) => {
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyDiagnosticMessage', async (item) => {
         if (item?.rawInfo) {
             await vscode.env.clipboard.writeText(item.rawInfo.message);
             vscode.window.showInformationMessage('Diagnostic message copied.');
         }
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.scanFileForPanel', async (item) => {
-        if (item?.fileUri) {
-            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning ${item.label} for Panel...`);
-            if (reportData && reportData.length > 0) {
-                reportPanel_1.ReportPanelManager.createOrShow(context.extensionUri, reportData);
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyDiagnosticWithContext', async (item) => {
+        if (item?.rawInfo) {
+            const docLinesCache = new Map();
+            try {
+                const doc = await vscode.workspace.openTextDocument(item.rawInfo.fileUri);
+                docLinesCache.set(item.rawInfo.fileUri.toString(), doc.getText().split(/\r?\n/));
             }
-            else if (reportData) {
-                vscode.window.showInformationMessage(`No matching diagnostics in ${item.label}.`);
+            catch {
+                const uint8 = await vscode.workspace.fs.readFile(item.rawInfo.fileUri);
+                docLinesCache.set(item.rawInfo.fileUri.toString(), Buffer.from(uint8).toString('utf8').split(/\r?\n/));
+            }
+            const groups = (0, diagnosticScanner_1.processDiagnosticsForReportGrouping)([item.rawInfo], docLinesCache);
+            if (groups.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(groups), "Snippet", 1);
             }
         }
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.tree.scanFileForClipboard', async (item) => {
-        if (item?.fileUri) {
-            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)([item.fileUri], `Scanning ${item.label} for Clipboard...`);
-            if (reportData && reportData.length > 0) {
-                await copyReportToClipboard((0, diagnosticScanner_1.generateMarkdownReport)(reportData), "Markdown", reportData.length);
+    }), vscode.commands.registerCommand('errorcontextcopier.tree.copyDiagnosticAsAiPrompt', async (item) => {
+        if (item?.rawInfo) {
+            const docLinesCache = new Map();
+            try {
+                const doc = await vscode.workspace.openTextDocument(item.rawInfo.fileUri);
+                docLinesCache.set(item.rawInfo.fileUri.toString(), doc.getText().split(/\r?\n/));
             }
-            else if (reportData) {
-                vscode.window.showInformationMessage(`No matching diagnostics in ${item.label}.`);
+            catch {
+                const uint8 = await vscode.workspace.fs.readFile(item.rawInfo.fileUri);
+                docLinesCache.set(item.rawInfo.fileUri.toString(), Buffer.from(uint8).toString('utf8').split(/\r?\n/));
+            }
+            const groups = (0, diagnosticScanner_1.processDiagnosticsForReportGrouping)([item.rawInfo], docLinesCache);
+            if (groups.length > 0) {
+                await copyReportToClipboard((0, diagnosticScanner_1.generateAiPrompt)(groups), "AI Prompt", 1);
             }
         }
     }));
@@ -230,8 +313,7 @@ function activate(context) {
         const uris = await promptForSubfolderSelection();
         if (uris)
             await triggerScanAndCopyToClipboard(uris, "Scanning subfolder(s)...", "Markdown");
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.scanAndShowInPanel', async () => {
+    }), vscode.commands.registerCommand('errorcontextcopier.scanAndShowInPanel', async () => {
         const uris = await promptForSubfolderSelection();
         if (uris) {
             const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning for Panel...");
@@ -242,17 +324,65 @@ function activate(context) {
                 vscode.window.showInformationMessage("No matching diagnostics for panel.");
             }
         }
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('errorcontextcopier.scanAndExportReportAs', async () => {
+    }), vscode.commands.registerCommand('errorcontextcopier.scanAndExportReportAs', async () => {
         const uris = await promptForSubfolderSelection();
         if (uris)
             await triggerScanAndExport(uris, "Scanning for export...");
+    }), vscode.commands.registerCommand('errorcontextcopier.view.scanWorkspaceAndShowPanel', async () => {
+        const wsFolders = vscode.workspace.workspaceFolders;
+        if (!wsFolders || wsFolders.length === 0) {
+            vscode.window.showErrorMessage("No workspace open.");
+            return;
+        }
+        const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(wsFolders.map(f => f.uri), "Scanning Workspace for Panel...");
+        if (reportData && reportData.length > 0) {
+            reportPanel_1.ReportPanelManager.createOrShow(context.extensionUri, reportData);
+        }
+        else if (reportData) {
+            vscode.window.showInformationMessage("No matching diagnostics in workspace.");
+        }
+    }), vscode.commands.registerCommand('errorcontextcopier.view.scanWorkspaceAndExportAs', async () => {
+        const wsFolders = vscode.workspace.workspaceFolders;
+        if (!wsFolders || wsFolders.length === 0) {
+            vscode.window.showErrorMessage("No workspace open.");
+            return;
+        }
+        await triggerScanAndExport(wsFolders.map(f => f.uri), "Scanning Workspace for Export...");
+    }), vscode.commands.registerCommand('errorcontextcopier.view.defineScanScopeAndShowPanel', async () => {
+        const uris = await promptForSubfolderSelection();
+        if (uris && uris.length > 0) {
+            const reportData = await (0, diagnosticScanner_1.collectAndProcessDiagnostics)(uris, "Scanning Scope for Panel...");
+            if (reportData && reportData.length > 0) {
+                reportPanel_1.ReportPanelManager.createOrShow(context.extensionUri, reportData);
+            }
+            else if (reportData) {
+                vscode.window.showInformationMessage("No matching diagnostics in scope.");
+            }
+        }
     }));
     registerSimpleCopyCommand(context, 'errorcontextcopier.scanWorkspaceAndCopy', async () => vscode.workspace.workspaceFolders?.map(f => f.uri), "Scanning workspace...");
     registerSimpleCopyCommand(context, 'errorcontextcopier.scanActiveFileAndCopy', async () => vscode.window.activeTextEditor ? [vscode.window.activeTextEditor.document.uri] : undefined, "Scanning active file...");
-    registerSimpleCopyCommand(context, 'errorcontextcopier.scanExplorerSelectionAndCopy', async (c, s) => s && s.length > 0 ? s : (c ? [c] : []), "Scanning selection...");
     // Initial populate
     diagnosticTreeDataProvider.refresh();
+}
+/**
+ * Resolves context target URIs from command arguments (explorer selection, active editor, or workspace).
+ */
+function getContextUris(clickedUri, selectedUris) {
+    if (selectedUris && selectedUris.length > 0) {
+        return selectedUris;
+    }
+    if (clickedUri) {
+        return [clickedUri];
+    }
+    if (vscode.window.activeTextEditor) {
+        return [vscode.window.activeTextEditor.document.uri];
+    }
+    if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        return vscode.workspace.workspaceFolders.map(f => f.uri);
+    }
+    vscode.window.showInformationMessage("No workspace or file selected.");
+    return undefined;
 }
 /**
  * Triggers a scan for the given URIs and copies the generated report to the clipboard.
@@ -279,6 +409,7 @@ async function triggerScanAndExport(uris, scanTitle) {
     }
     const formatOptions = [
         { label: "Markdown", description: "Standard Markdown format", generator: diagnosticScanner_1.generateMarkdownReport, formatName: "Markdown" },
+        { label: "AI Fix Prompt", description: "Prompt formatted for ChatGPT/Claude/Gemini", generator: diagnosticScanner_1.generateAiPrompt, formatName: "AI Prompt" },
         { label: "JSON", description: "Structured JSON output", generator: diagnosticScanner_1.generateJsonReport, formatName: "JSON" },
         { label: "HTML", description: "Self-contained HTML document", generator: diagnosticScanner_1.generateHtmlFileReport, formatName: "HTML" },
         { label: "CSV", description: "Comma Separated Values", generator: diagnosticScanner_1.generateCsvReport, formatName: "CSV" },
@@ -299,8 +430,6 @@ function registerSimpleCopyCommand(context, commandId, getTargetUris, scanTitle)
                 vscode.window.showInformationMessage("No active file.");
             else if (commandId.includes('Workspace') && (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0))
                 vscode.window.showInformationMessage("No workspace open.");
-            else if (commandId.includes('Explorer'))
-                vscode.window.showInformationMessage("No items selected in Explorer.");
             return;
         }
         await triggerScanAndCopyToClipboard(uris, scanTitle, "Markdown");
@@ -345,7 +474,7 @@ async function promptForSubfolderSelection() {
 async function copyReportToClipboard(reportString, formatName, groupCount) {
     try {
         await vscode.env.clipboard.writeText(reportString);
-        vscode.window.showInformationMessage(`${formatName} report for ${groupCount} group(s) copied!`);
+        vscode.window.showInformationMessage(`${formatName} report copied to clipboard! (${groupCount} item(s))`);
     }
     catch (e) {
         console.error("Clipboard fail:", e);
